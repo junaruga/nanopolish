@@ -19,6 +19,7 @@ CC ?= gcc
 HDF5?=install
 EIGEN?=install
 HTS?=install
+MKFLAGS=
 
 # Check operating system, OSX doesn't have -lrt
 UNAME_S := $(shell uname -s)
@@ -79,7 +80,7 @@ all: $(PROGRAM) $(TEST_PROGRAM)
 # Build libhts
 #
 htslib/libhts.a:
-	cd htslib && make || exit 255
+	cd htslib && make $(MKFLAGS) || exit 255
 
 #
 # If this library is a dependency the user wants HDF5 to be downloaded and built.
@@ -87,13 +88,13 @@ htslib/libhts.a:
 lib/libhdf5.a:
 	if [ ! -e hdf5-1.8.14.tar.gz ]; then wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.14/src/hdf5-1.8.14.tar.gz; fi
 	tar -xzf hdf5-1.8.14.tar.gz || exit 255
-	cd hdf5-1.8.14 && ./configure --enable-threadsafe --prefix=`pwd`/.. && make && make install
+	cd hdf5-1.8.14 && ./configure --enable-threadsafe --prefix=`pwd`/.. && make $(MKFLAGS) && make install
 
 
 # Download and install eigen if not already downloaded
 eigen/INSTALL:
 	if [ ! -e 3.2.5.tar.bz2 ]; then wget http://bitbucket.org/eigen/eigen/get/3.2.5.tar.bz2; fi
-	tar -xjvf 3.2.5.tar.bz2 || exit 255
+	tar -xjf 3.2.5.tar.bz2 || exit 255
 	mv eigen-eigen-bdd17ee3b1b3 eigen || exit 255
 
 #
