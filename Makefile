@@ -38,7 +38,7 @@ ifeq ($(HDF5), install)
 else
     # Use system-wide hdf5
     H5_LIB =
-    H5_INCLUDE =
+    H5_INCLUDE ?=
     LIBS += -lhdf5
 endif
 
@@ -96,6 +96,8 @@ lib/libhdf5.a:
 	fi
 	tar -xzf hdf5-$(HDF5_VERSION).tar.gz || exit 255
 	cd hdf5-$(HDF5_VERSION) && \
+		wget "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD" -O bin/config.guess && \
+		wget "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD" -O bin/config.sub && \
 		./configure $(HDF5_CONFIG_ARGS) --prefix=`pwd`/.. && \
 		make && make install
 

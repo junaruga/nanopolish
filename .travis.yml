@@ -1,6 +1,7 @@
 # travis.yml for github.com/jts/nanopolish
 
 dist: trusty
+services: docker
 sudo: false
 language: generic
 cache: apt
@@ -22,6 +23,24 @@ matrix:
         - AR=gcc-ar-8
         - NM=gcc-nm-8
         - RANLIB=gcc-ranlib-8
+    # aarch64 - ARM 64-bit
+    - name: aarch64
+      sudo: required
+      env:
+        - ARCH=arm64
+        - HDF5="system"
+        - H5_INCLUDE="-I/usr/include/hdf5/serial"
+    # armv7l - ARM 32-bit
+    - name: armv7l
+      sudo: required
+      env:
+        - ARCH=armhf
+        - HDF5="system"
+        - H5_INCLUDE="-I/usr/include/hdf5/serial"
+    allow_failures:
+    - name: aarch64
+    - name: armv7l
+    fast_finish: true
 
 # Install and export newer gcc
 before_install:
@@ -37,10 +56,32 @@ before_install:
           echo "Installing ${CXX}."
           sudo apt-get install -qq "${CXX}"
       fi
+    - |
+      if [ "${ARCH}" = "arm64" -o "${ARCH}" = "armhf" ]; then
+        sed -i "/^FROM / s/arm64/${ARCH}/" Dockerfile-arm
+        docker run \
+            --rm \
+            --privileged \
+            multiarch/qemu-user-static:register --reset && \
+            docker build --rm -t nanopolish -f Dockerfile-arm .
+      fi
 
 script:
     # Suppress all compiler warnings for hdf5 Makefile
     # to display the log without downloading the raw log on Travis log page.
     # Travis finishs with error when exceeding the limit of 4 MB of log length.
     - export H5_CFLAGS="-w"
-    - make && make test
+    - |
+      if [ "${ARCH}" = "" ]; then
+          make && make test
+      fi
+    - |
+      if [ "${ARCH}" = "arm64" -o "${ARCH}" = "armhf" ]; then
+          docker run \
+              --rm \
+              -e HDF5="${HDF5:-install}" \
+              -e H5_CFLAGS="${H5_CFLAGS}" \
+              -e H5_INCLUDE="${H5_INCLUDE}" \
+              -t nanopolish \
+              /bin/bash -c "uname -a && make && make test"
+      fi
