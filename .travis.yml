@@ -57,7 +57,7 @@ before_install:
           sudo apt-get install -qq "${CXX}"
       fi
     - |
-      if [ "${ARCH}" = "arm64" -o "${ARCH}" = "armhf" ]; then
+      if [ "${ARCH}" != "" ]; then
         sed -i "/^FROM / s/arm64/${ARCH}/" Dockerfile-arm
         docker run \
             --rm \
@@ -76,12 +76,12 @@ script:
           make && make test
       fi
     - |
-      if [ "${ARCH}" = "arm64" -o "${ARCH}" = "armhf" ]; then
+      if [ "${ARCH}" != "" ]; then
           docker run \
               --rm \
               -e HDF5="${HDF5:-install}" \
               -e H5_CFLAGS="${H5_CFLAGS}" \
               -e H5_INCLUDE="${H5_INCLUDE}" \
               -t nanopolish \
-              /bin/bash -c "uname -a && make && make test"
+              bash -c "make && make test"
       fi

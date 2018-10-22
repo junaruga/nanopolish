@@ -14,3 +14,4 @@ RUN find /usr/include -name "H5*.h" || true
 RUN find /usr/include -name "hdf5.h" || true
 WORKDIR /nanopolish
 COPY . .
+ENTRYPOINT ["/nanopolish/entrypoint.sh"]
