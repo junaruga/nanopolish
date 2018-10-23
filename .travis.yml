@@ -30,6 +30,7 @@ matrix:
         - ARCH=arm64
         - HDF5="system"
         - H5_INCLUDE="-I/usr/include/hdf5/serial"
+        - LDFLAGS="-L/usr/lib/aarch64-linux-gnu/hdf5/serial"
     # armv7l - ARM 32-bit
     - name: armv7l
       sudo: required
@@ -37,6 +38,7 @@ matrix:
         - ARCH=armhf
         - HDF5="system"
         - H5_INCLUDE="-I/usr/include/hdf5/serial"
+        - LDFLAGS="-L/usr/lib/arm-linux-gnueabihf/hdf5/serial"
     allow_failures:
     - name: aarch64
     - name: armv7l
@@ -59,9 +61,7 @@ before_install:
     - |
       if [ "${ARCH}" != "" ]; then
         sed -i "/^FROM / s/arm64/${ARCH}/" Dockerfile-arm
-        docker run \
-            --rm \
-            --privileged \
+        docker run --rm --privileged \
             multiarch/qemu-user-static:register --reset && \
             docker build --rm -t nanopolish -f Dockerfile-arm .
       fi
@@ -77,11 +77,10 @@ script:
       fi
     - |
       if [ "${ARCH}" != "" ]; then
-          docker run \
-              --rm \
+          docker run --rm -t \
               -e HDF5="${HDF5:-install}" \
               -e H5_CFLAGS="${H5_CFLAGS}" \
               -e H5_INCLUDE="${H5_INCLUDE}" \
-              -t nanopolish \
-              bash -c "make && make test"
+              -e LDFLAGS="${LDFLAGS}" \
+              nanopolish
       fi
