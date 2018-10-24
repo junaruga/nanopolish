@@ -12,7 +12,6 @@ LIBS = -lz
 CXXFLAGS ?= -g -O3
 CXXFLAGS += -std=c++11 -fopenmp -fsigned-char -D_FILE_OFFSET_BITS=64 #D_FILE_OFFSET_BITS=64 makes nanopolish work in 32 bit systems
 CFLAGS ?= -O3 -std=c99 -fsigned-char -D_FILE_OFFSET_BITS=64 
-LDFLAGS ?=
 CXX ?= g++
 CC ?= gcc
 
@@ -39,7 +38,7 @@ ifeq ($(HDF5), install)
 else
     # Use system-wide hdf5
     H5_LIB =
-    H5_INCLUDE ?=
+    H5_INCLUDE =
     LIBS += -lhdf5
 endif
 
