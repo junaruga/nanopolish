@@ -38,7 +38,7 @@ ifeq ($(HDF5), install)
 else
     # Use system-wide hdf5
     H5_LIB =
-    H5_INCLUDE =
+    H5_INCLUDE ?=
     LIBS += -lhdf5
 endif
 
