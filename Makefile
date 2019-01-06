@@ -21,8 +21,8 @@ HDF5 ?= install
 EIGEN ?= install
 HTS ?= install
 
-HDF5_VERSION ?= 1.8.14
-HDF5_CONFIG_ARGS ?= --enable-threadsafe
+HDF5_VERSION ?= 1.10.4
+HDF5_CONFIG_ARGS ?=
 EIGEN_VERSION ?= 3.2.5
 
 # Check operating system, OSX doesn't have -lrt
