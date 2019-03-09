@@ -1,0 +1,39 @@
+# language: c does not work
+# https://github.com/Shippable/support/issues/4773
+language: none
+matrix:
+  include:
+    - nodePool: shippable_shared_aarch64
+    - nodePool: shippable_shared_aarch64
+      env:
+        - HDF5="system"
+        - H5_INCLUDE="-I/usr/include/hdf5/serial"
+        - LDFLAGS="-L/usr/lib/aarch64-linux-gnu/hdf5/serial"
+    - nodePool: shippable_shared_aarch32
+    - nodePool: shippable_shared_aarch32
+      env:
+        - HDF5="system"
+        - H5_INCLUDE="-I/usr/include/hdf5/serial"
+        - LDFLAGS="-L/usr/lib/arm-linux-gnueabihf/hdf5/serial"
+build:
+  ci:
+    # Install dependencies
+    - uname -a
+    - |
+      apt-get update -qq && \
+        apt-get install -yq --no-install-suggests --no-install-recommends \
+        bzip2 \
+        ca-certificates \
+        gcc \
+        g++ \
+        make \
+        software-properties-common
+    - add-apt-repository -y universe
+    - |
+      apt-get update -qq && \
+        apt-get install -yq libhdf5-dev
+    - find /usr/include -name "hdf5.h" || true
+    - find /usr/lib -name "libhdf5.a" || true
+    # Test
+    - export H5_CFLAGS="-w"
+    - make && make test
