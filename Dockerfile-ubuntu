@@ -1,4 +1,5 @@
-FROM multiarch/ubuntu-debootstrap:arm64-bionic
+ARG BASE_IMAGE=ubuntu
+FROM ${BASE_IMAGE}
 RUN uname -a
 RUN apt-get update -qq && \
   apt-get install -yq --no-install-suggests --no-install-recommends \
@@ -7,7 +8,8 @@ RUN apt-get update -qq && \
   gcc \
   g++ \
   make \
-  software-properties-common
+  software-properties-common \
+  wget
 RUN add-apt-repository -y universe && \
   apt-get update -qq && \
   apt-get install -yq libhdf5-dev

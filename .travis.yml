@@ -1,6 +1,6 @@
 # travis.yml for github.com/jts/nanopolish
 
-dist: trusty
+dist: xenial
 services: docker
 sudo: false
 language: generic
@@ -13,12 +13,10 @@ git:
       if: type = cron OR env(CI_CRON) = true
     - &arch
       before_install:
+          - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
           - |
-            sed -i "/^FROM / s/arm64/${ARCH}/" Dockerfile-arm
-          - |
-            docker run --rm --privileged \
-                multiarch/qemu-user-static:register --reset && \
-                docker build --rm -t nanopolish -f Dockerfile-arm .
+            docker build --rm -t nanopolish \
+                --build-arg BASE_IMAGE="${BASE_IMAGE}" -f Dockerfile-ubuntu .
       script:
           - |
             docker run --rm -t \
@@ -48,13 +46,13 @@ matrix:
         - name: aarch64
           sudo: required
           env:
-              - ARCH=arm64
+              - BASE_IMAGE=arm64v8/ubuntu:bionic
           <<: *arch
           <<: *cron-only
         - name: aarch64-system-hdf5
           sudo: required
           env:
-              - ARCH=arm64
+              - BASE_IMAGE=arm64v8/ubuntu:bionic
               - HDF5="system"
               - H5_INCLUDE="-I/usr/include/hdf5/serial"
               - LDFLAGS="-L/usr/lib/aarch64-linux-gnu/hdf5/serial"
@@ -63,13 +61,13 @@ matrix:
         - name: armv7l
           sudo: required
           env:
-              - ARCH=armhf
+              - BASE_IMAGE=arm32v7/ubuntu:bionic
           <<: *arch
           <<: *cron-only
         - name: armv7l-system-hdf5
           sudo: required
           env:
-              - ARCH=armhf
+              - BASE_IMAGE=arm32v7/ubuntu:bionic
               - HDF5="system"
               - H5_INCLUDE="-I/usr/include/hdf5/serial"
               - LDFLAGS="-L/usr/lib/arm-linux-gnueabihf/hdf5/serial"
