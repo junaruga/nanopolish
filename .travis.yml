@@ -2,6 +2,10 @@
 
 language: generic
 
+env:
+  global:
+    - SETARCH=
+
 matrix:
   include:
     - os: linux
@@ -32,12 +36,36 @@ matrix:
         - HDF5="system"
         - H5_INCLUDE="-I/usr/include/hdf5/serial"
         - LDFLAGS="-L/usr/lib/aarch64-linux-gnu/hdf5/serial"
+    - name: arm32
+      os: linux
+      arch: arm64
+      env:
+        # https://packages.ubuntu.com/xenial/crossbuild-essential-armhf
+        - GCC_PREFIX="arm-linux-gnueabihf-"
+        - CC="$GCC_PREFIXgcc"
+        - CXX="$GCC_PREFIXg++"
+        - AR="$GCC_PREFIXgcc-ar"
+        - NM="$GCC_PREFIXgcc-nm"
+        - RANLIB="$GCC_PREFIXgcc-ranlib"
+        - SETARCH='setarch linux32 --verbose --32bit'
+        - HDF5="system"
+        - H5_INCLUDE="-I/usr/include/hdf5/serial"
+        - LDFLAGS="-L/usr/lib/arm-linux-gnuabihf/hdf5/serial"
+      install:
+        - sudo dpkg --add-architecture armhf
+        - |
+          sudo apt-get -yq install \
+            crossbuild-essential-armhf \
+            libhdf5-serial-dev:armhf
 
 before_script:
+    - dpkg --print-architecture
+    - dpkg --print-foreign-architectures
+    - setarch --list
     # Suppress all compiler warnings for hdf5 Makefile
     # to display the log without downloading the raw log on Travis log page.
     # Travis finishs with error when exceeding the limit of 4 MB of log length.
     - export H5_CFLAGS="-w"
 
 script:
-    - make && make test
+    - $SETARCH make && $SETARCH make test
