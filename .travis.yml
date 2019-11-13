@@ -53,7 +53,7 @@ matrix:
         - LDFLAGS="-L/usr/lib/arm-linux-gnuabihf/hdf5/serial"
       install:
         - sudo dpkg --add-architecture armhf
-          sudo apt-get -yq update
+        - sudo apt-get -yq update
         - |
           sudo apt-get -yq install \
             crossbuild-essential-armhf \
