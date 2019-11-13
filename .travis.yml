@@ -56,7 +56,7 @@ matrix:
         - |
           sudo apt-get -yq install \
             crossbuild-essential-armhf \
-            libhdf5-serial-dev:armhf
+            libhdf5-dev:armhf
 
 before_script:
     - dpkg --print-architecture
